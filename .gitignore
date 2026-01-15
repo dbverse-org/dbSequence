@@ -1,0 +1,12 @@
+.Rproj.user
+.Rhistory
+.Rbuildignore
+:temp:
+inst/doc
+*.db
+*.wal
+.DS_Store
+docs/
+scratch/
+*.code-workspace
+benchmarks/

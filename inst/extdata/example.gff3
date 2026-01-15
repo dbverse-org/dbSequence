@@ -1,0 +1,9 @@
+##gff-version 3
+chr1	exonr	gene	1000	2000	.	+	.	ID=gene1;Name=GENE1;biotype=protein_coding
+chr1	exonr	exon	1000	1200	.	+	.	ID=exon1;Parent=gene1
+chr1	exonr	exon	1800	2000	.	+	.	ID=exon2;Parent=gene1
+chr2	exonr	gene	3000	4500	.	-	.	ID=gene2;Name=GENE2;biotype=protein_coding
+chr2	exonr	exon	3000	3500	.	-	.	ID=exon3;Parent=gene2
+chr2	exonr	exon	4000	4500	.	-	.	ID=exon4;Parent=gene2
+chr3	exonr	gene	5000	6000	.	+	.	ID=gene3;Name=GENE3;biotype=lncRNA
+chr3	exonr	exon	5000	6000	.	+	.	ID=exon5;Parent=gene3

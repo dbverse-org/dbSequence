@@ -1,0 +1,83 @@
+url: https://github.com/dbverse-org/dbsequence-r
+template:
+  bootstrap: 5
+
+reference:
+- title: Data Import
+  desc: high-level import functions
+  contents:
+  - read_bed
+  - read_vcf
+  - read_bam
+  - read_gff
+  - read_gff3
+
+- title: Range Operations (plyranges-like)
+  desc: Functions for manipulating genomic ranges
+  contents:
+  - filter_by_overlaps
+  - compute_coverage
+  - as_granges
+  - asRanges
+  - as_ranges-dbSequence-method
+
+- title: BiocIO Import Interface
+  desc: BiocIO-compatible import methods for genomic data files
+  contents:
+  - DuckDBFile-class
+  - DuckDBFile
+  - import,BamFile,missing,ANY-method
+  - import,BEDFile,missing,ANY-method
+  - import,VcfFile,missing,ANY-method
+  - import,GFFFile,missing,ANY-method
+  - import,GTFFile,missing,ANY-method
+  - import,character,missing,ANY-method
+  - import,FastaFile,missing,ANY-method
+  - show,DuckDBFile-method
+
+- title: Object Classes
+  desc: S4 classes and constructors
+  contents:
+  - dbSequence-class
+  - dbSequence
+  - show,dbSequence-method
+
+- title: Accessors
+  desc: Accessor functions for dbSequence objects
+  contents:
+  - tableName
+  - fileSource
+  - table_name
+  - file_source
+  - fileSource<-
+
+- title: Conversion
+  desc: Conversion between dbSequence and other formats
+  contents:
+  - coerce,dbSequence,GRanges-method
+  - coerce,GRanges,dbSequence-method
+
+- title: Internal Functions
+  desc: Internal package functions
+  contents:
+  - starts_with(".")
+
+articles:
+- title: Articles
+  navbar: ~
+  contents:
+  - data-ingestion
+  - plyranges-api
+
+navbar:
+  structure:
+    left: [intro, reference, articles]
+    right: [search, github]
+  components:
+    articles:
+      text: Articles
+      menu:
+      - text: Data Ingestion
+        href: articles/data-ingestion.html
+      - text: plyranges API
+        href: articles/plyranges-api.html

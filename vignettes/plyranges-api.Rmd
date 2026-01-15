@@ -1,0 +1,150 @@
+---
+title: "plyranges API"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{plyranges API}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>",
+    eval = TRUE,
+    warning = FALSE,
+    message = FALSE
+)
+library(dbSequence)
+library(GenomicRanges)
+library(dbplyr)
+```
+
+## Overview
+
+dbSequence provides plyranges-compatible functions that translate to SQL queries. Operations execute in DuckDB, not R, enabling analysis of datasets larger than memory.
+
+## Core Functions
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `filter_by_overlaps(x, y)` | Ranges in x overlapping y | `dbSequence` (lazy) |
+| `compute_coverage(x, region, window)` | Binned coverage counts | `data.frame` |
+| `as_granges(x)` | Convert to GRanges | `GRanges` (collected) |
+
+## filter_by_overlaps
+
+Find ranges overlapping a region of interest:
+
+```{r filter-overlaps}
+# Load example data
+bed_file <- system.file("extdata", "example.bed", package = "dbSequence")
+fragments <- read_bed(bed_file)
+
+# Define region of interest (example.bed has features on chr1:100-200, 300-400)
+region <- GRanges("chr1:100-500")
+
+# Filter to overlapping fragments - stays lazy
+overlapping <- filter_by_overlaps(fragments, region)
+
+# Check the SQL being generated
+dbplyr::sql_render(overlapping@value)
+```
+
+### Multiple Regions
+
+```{r multi-region}
+# Filter against multiple peaks
+peaks <- GRanges(c("chr1:100-150", "chr1:300-350"))
+overlapping <- filter_by_overlaps(fragments, peaks)
+```
+
+### dbSequence to dbSequence
+
+Both arguments can be lazy. To join them, they must reside in the same database and **share the same connection object**.
+
+```{r lazy-join}
+# Use a temporary persistent DB
+temp_db <- tempfile(fileext = ".duckdb")
+dest <- DuckDBFile(temp_db)
+
+# Import both tables to the same database file
+peaks_orig <- read_bed(bed_file, dest = dest, table_name = "peaks", lazy = FALSE)
+frags_orig <- read_bed(bed_file, dest = dest, table_name = "fragments", lazy = FALSE)
+
+# Create a shared connection (reuse the one from peaks_orig)
+# This is required because dplyr queries cannot span multiple connections
+con <- dbplyr::remote_con(peaks_orig@value)
+frags_shared <- dbSequence("fragments", file_source = dest, .conn = con)
+
+# Now both objects share 'con', so we can join them lazily
+overlapping <- filter_by_overlaps(frags_shared, peaks_orig)
+```
+
+## compute_coverage
+
+Calculate binned coverage for a region:
+
+```{r coverage}
+# 50bp bins across region
+coverage <- compute_coverage(
+    fragments,
+    region = "chr1:0-500",
+    window = 50
+)
+
+# Returns data.frame with bin_start, bin_end, count
+head(coverage)
+```
+
+## as_granges
+
+Convert to GRanges when you need Bioconductor operations:
+
+```{r as-granges}
+# Collect subset to GRanges
+gr <- fragments |>
+    filter_by_overlaps(region) |>
+    as_granges()
+
+# Now use standard GenomicRanges operations
+GenomicRanges::reduce(gr)
+```
+
+> **Note:** `as_granges()` collects data into R memory. Filter first.
+
+## Workflow Example
+
+Typical analysis pattern:
+```{r workflow}
+# 1. Load data (lazy) - using example.bed
+fragments <- read_bed(bed_file)
+
+# 2. Define analysis region
+promoter <- GRanges("chr1:50-250")
+
+# 3. Filter to region (still lazy)
+promoter_fragments <- filter_by_overlaps(fragments, promoter)
+
+# 4. Compute coverage
+coverage <- compute_coverage(promoter_fragments, promoter, window = 10)
+
+# 5. Collect if needed for custom analysis
+gr <- as_granges(promoter_fragments)
+```
+
+## File Type Restrictions
+
+BAM/CRAM files are blocked from `filter_by_overlaps` due to their indexed nature—use `Rsamtools` instead:
+
+```{r bam-error, error=TRUE}
+bam_file <- system.file("extdata", "example.bam", package = "dbSequence")
+bam_data <- read_bam(bam_file)
+
+# This should error
+filter_by_overlaps(bam_data, region)
+```
+
+## Next Steps
+
+
