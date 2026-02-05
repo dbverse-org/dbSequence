@@ -323,6 +323,16 @@ setMethod(
     tbl_value <- dplyr::rename(tbl_value, !!!rename_syms)
   }
 
+  # Standardize BED coordinates: input BED is 0-based, half-open.
+  # Convert to 1-based, closed intervals to match Bioconductor GRanges.
+  if (identical(file_type, "bed") && all(c("start", "end") %in% colnames(tbl_value))) {
+    tbl_value <- tbl_value |>
+      dplyr::mutate(
+        start = as.integer(start) + 1L,
+        end = as.integer(end)
+      )
+  }
+
   methods::new(
     "dbSequence",
     value = tbl_value,
@@ -441,13 +451,28 @@ setMethod(
     NULL
   }
 
-  .import_to_duckdb(
+  res <- .import_to_duckdb(
     bed_path,
     dest_db,
     table_name,
     "bed",
     exon_options = list(query_filter = query_filter)
   )
+
+  # Standardize BED coordinates: input BED is 0-based, half-open.
+  # Convert to 1-based, closed intervals to match Bioconductor GRanges.
+  if (is(res, "dbSequence")) {
+    tbl_value <- res@value
+    if (!is.null(tbl_value) && all(c("start", "end") %in% colnames(tbl_value))) {
+      res@value <- tbl_value |>
+        dplyr::mutate(
+          start = as.integer(start) + 1L,
+          end = as.integer(end)
+        )
+    }
+  }
+
+  res
 }
 
 #' @keywords internal
@@ -605,9 +630,8 @@ setMethod(
         }
       }
     },
-    "gff" = , 
-    "vcf" = {
-      # Use DuckDB's direct CSV reading for VCF/GFF
+    "gff" = {
+      # Use DuckDB's direct CSV reading for GFF
       create_sql <- glue::glue(
         "
         CREATE TABLE {table_name} AS 
@@ -615,10 +639,62 @@ setMethod(
           header=false, 
           delim='\t',
           comment='#',
-          ignore_errors=true
+          ignore_errors=true,
+          null_padding=true
         )"
       )
       DBI::dbExecute(con, create_sql)
+
+      # Rename standard GFF columns if they have generic names
+      fields <- DBI::dbListFields(con, table_name)
+      gff_cols <- c("seqnames", "source", "type", "start", "end",
+                    "score", "strand", "phase", "attributes")
+
+      # Rename up to the first 9 columns
+      num_cols_to_rename <- min(length(fields), length(gff_cols))
+      for (i in seq_len(num_cols_to_rename)) {
+        current <- fields[i]
+        target <- gff_cols[i]
+
+        # Only rename if it looks like a generic name (column0, etc.)
+        if (grepl("^column", current, ignore.case = TRUE) && current != target) {
+          alter_sql <- glue::glue("ALTER TABLE {table_name} RENAME COLUMN \"{current}\" TO \"{target}\"")
+          tryCatch(DBI::dbExecute(con, alter_sql), error = function(e) warning("Failed to rename GFF column: ", e$message))
+        }
+      }
+    },
+    "vcf" = {
+      # Use DuckDB's direct CSV reading for VCF
+      create_sql <- glue::glue(
+        "
+        CREATE TABLE {table_name} AS 
+        SELECT * FROM read_csv_auto('{file_path}', 
+          header=false, 
+          delim='\t',
+          comment='#',
+          ignore_errors=true,
+          null_padding=true
+        )"
+      )
+      DBI::dbExecute(con, create_sql)
+
+      # Rename standard VCF columns if they have generic names
+      fields <- DBI::dbListFields(con, table_name)
+      vcf_cols <- c("seqnames", "start", "id", "ref", "alt",
+                    "qual", "filter", "info")
+
+      # Rename up to the first 8 columns
+      num_cols_to_rename <- min(length(fields), length(vcf_cols))
+      for (i in seq_len(num_cols_to_rename)) {
+        current <- fields[i]
+        target <- vcf_cols[i]
+
+        # Only rename if it looks like a generic name (column0, etc.)
+        if (grepl("^column", current, ignore.case = TRUE) && current != target) {
+          alter_sql <- glue::glue("ALTER TABLE {table_name} RENAME COLUMN \"{current}\" TO \"{target}\"")
+          tryCatch(DBI::dbExecute(con, alter_sql), error = function(e) warning("Failed to rename VCF column: ", e$message))
+        }
+      }
     },
     {
       # For all other e.g. BAM, FASTA, FASTQ - require exonr
