@@ -56,6 +56,8 @@ setClass(
   "gtf",
   "bam",
   "cram",
+  "duckdb",
+  "db",
   "fasta",
   "fa",
   "fastq",
