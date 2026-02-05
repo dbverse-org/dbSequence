@@ -200,27 +200,56 @@ compute_coverage.dbSequence <- function(x, region, window = 100, ...) {
   tbl <- filtered@value
 
   if (is.null(tbl)) {
-    # Return empty coverage
     return(data.frame(bin_start = integer(), bin_end = integer(), count = integer()))
   }
 
   # Detect column names
   tbl_cols <- colnames(tbl)
   start_col <- .detect_start_col(tbl_cols)
+  end_col <- .detect_end_col(tbl_cols)
 
-  # Compute binned counts using SQL
-  # FLOOR(start / window) * window gives the bin start
-  coverage_tbl <- tbl |>
-    dplyr::mutate(
-      bin_start = floor(!!rlang::sym(start_col) / !!window) * !!window
+  # Get the DuckDB connection from the tbl
+  con <- dbplyr::remote_con(tbl)
+
+  # Create bins covering the region
+  # Align to fixed-width bins with 1-based, closed intervals.
+  # Bin starts: 1, 1+window, 1+2*window, ...
+  first_bin <- floor((region_start - 1L) / window) * window + 1L
+  last_bin <- floor((region_end - 1L) / window) * window + 1L
+  bin_starts <- seq(from = first_bin, to = last_bin, by = window)
+
+  bins_df <- data.frame(
+    bin_start = as.integer(bin_starts),
+    bin_end = as.integer(bin_starts + window - 1L)
+  )
+
+  # Write bins to a temporary table
+  temp_bins_name <- paste0("temp_bins_", gsub("[^0-9]", "", format(Sys.time(), "%H%M%S%OS3")))
+  DBI::dbWriteTable(con, temp_bins_name, bins_df, temporary = TRUE, overwrite = TRUE)
+  bins_tbl <- dplyr::tbl(con, temp_bins_name)
+
+  # Count ranges overlapping each bin using cross join + filter
+  # A range overlaps a bin if: range.start <= bin.end AND range.end >= bin.start
+  coverage_tbl <- bins_tbl |>
+    dplyr::cross_join(tbl) |>
+    dplyr::filter(
+      !!rlang::sym(start_col) <= bin_end,
+      !!rlang::sym(end_col) >= bin_start
     ) |>
-    dplyr::group_by(bin_start) |>
+    dplyr::group_by(bin_start, bin_end) |>
     dplyr::summarise(count = dplyr::n(), .groups = "drop") |>
     dplyr::arrange(bin_start) |>
     dplyr::collect()
 
-  # Add bin_end column
-  coverage_tbl$bin_end <- coverage_tbl$bin_start + window
+  # Add bins with zero counts
+  if (nrow(coverage_tbl) < length(bin_starts)) {
+    all_bins <- data.frame(
+      bin_start = as.integer(bin_starts),
+      bin_end = as.integer(bin_starts + window - 1L)
+    )
+    coverage_tbl <- dplyr::left_join(all_bins, coverage_tbl, by = c("bin_start", "bin_end"))
+    coverage_tbl$count[is.na(coverage_tbl$count)] <- 0L
+  }
 
   # Filter to only bins within the region
   coverage_tbl <- coverage_tbl |>
