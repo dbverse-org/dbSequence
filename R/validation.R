@@ -103,7 +103,14 @@
 #' Accessor for file_source slot
 #'
 #' @param object A dbSequence object
+#' @param value New value (will be rejected)
 #' @return The file_source value
+#' @examples
+#' bed <- system.file("extdata", "example.bed", package = "dbSequence")
+#' db_seq <- read_bed(bed)
+#' fileSource(db_seq)
+#' try(fileSource(db_seq) <- "other.bed")
+#'
 #' @export
 setGeneric("fileSource", function(object) standardGeneric("fileSource"))
 
@@ -121,6 +128,12 @@ setMethod("fileSource", "dbSequence", function(object) {
 #'
 #' @param object A dbSequence object
 #' @param value New value (will be rejected)
+#' @return Always errors because file sources are immutable after creation.
+#' @examples
+#' bed <- system.file("extdata", "example.bed", package = "dbSequence")
+#' db_seq <- read_bed(bed)
+#' try(fileSource(db_seq) <- "other.bed")
+#'
 #' @export
 setGeneric("fileSource<-", function(object, value) standardGeneric("fileSource<-"))
 

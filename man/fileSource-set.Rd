@@ -11,8 +11,17 @@ fileSource(object) <- value
 
 \item{value}{New value (will be rejected)}
 }
+\value{
+Always errors because file sources are immutable after creation.
+}
 \description{
 This method prevents modification of the file_source slot
 after object creation. The file_source is set during import and should
 not be changed to maintain data integrity.
+}
+\examples{
+bed <- system.file("extdata", "example.bed", package = "dbSequence")
+db_seq <- read_bed(bed)
+try(fileSource(db_seq) <- "other.bed")
+
 }

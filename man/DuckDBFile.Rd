@@ -19,11 +19,9 @@ This is a simple path wrapper following the BiocFile pattern and supports both
 file paths and in-memory databases.
 }
 \examples{
-\dontrun{
 # Create DuckDBFile for existing database
-db_file <- DuckDBFile("data.duckdb")
+db_file <- DuckDBFile(tempfile(fileext = ".duckdb"))
 
 # Create DuckDBFile for in-memory database
 mem_db <- DuckDBFile(":memory:")
-}
 }

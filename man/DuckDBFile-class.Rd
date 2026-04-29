@@ -18,3 +18,8 @@ Extends BiocFile to be compatible with BiocIO import/export framework.
 Can be a file path or ":memory:" for in-memory databases.}
 }}
 
+\examples{
+db_file <- DuckDBFile(tempfile(fileext = ".duckdb"))
+db_file
+
+}

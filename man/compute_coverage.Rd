@@ -27,9 +27,9 @@ across a genomic region. This is useful for visualization and
 summarizing fragment density.
 }
 \examples{
-\dontrun{
-region <- "chr1:1000000-2000000"
-coverage <- compute_coverage(fragments, region, window = 1000)
-}
+bed <- system.file("extdata", "example.bed", package = "dbSequence")
+fragments <- read_bed(bed)
+coverage <- compute_coverage(fragments, "chr1:100-500", window = 100)
+coverage
 
 }

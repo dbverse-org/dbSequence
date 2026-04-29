@@ -25,11 +25,12 @@
 #' The operation is pushed down to DuckDB, so only matching rows are retrieved.
 #'
 #' @examples
-#' \dontrun{
 #' # Filter fragments to a specific region
-#' region <- GenomicRanges::GRanges("chr1:1000-2000")
+#' bed <- system.file("extdata", "example.bed", package = "dbSequence")
+#' fragments <- read_bed(bed)
+#' region <- GenomicRanges::GRanges("chr1:100-500")
 #' filtered <- filter_by_overlaps(fragments, region)
-#' }
+#' filtered
 #'
 #' @export
 filter_by_overlaps <- function(x, y, ...) {
@@ -168,10 +169,10 @@ filter_by_overlaps.dbSequence <- function(x, y, ...) {
 #' @return A data frame with columns: bin_start, bin_end, count
 #'
 #' @examples
-#' \dontrun{
-#' region <- "chr1:1000000-2000000"
-#' coverage <- compute_coverage(fragments, region, window = 1000)
-#' }
+#' bed <- system.file("extdata", "example.bed", package = "dbSequence")
+#' fragments <- read_bed(bed)
+#' coverage <- compute_coverage(fragments, "chr1:100-500", window = 100)
+#' coverage
 #'
 #' @export
 compute_coverage <- function(x, region, window = 100, ...) {

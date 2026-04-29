@@ -22,9 +22,11 @@ Creates a dbSequence object by wrapping a table name.
 This is typically called internally by import methods.
 }
 \examples{
-\dontrun{
-# Create a dbSequence object
-db_file <- DuckDBFile("data.duckdb")
-db_seq <- dbSequence("variants_table", db_file)
-}
+db_path <- tempfile(fileext = ".duckdb")
+con <- DBI::dbConnect(duckdb::duckdb(), dbdir = db_path)
+DBI::dbWriteTable(con, "ranges", data.frame(seqnames = "chr1", start = 1, end = 10))
+DBI::dbDisconnect(con, shutdown = TRUE)
+
+db_seq <- dbSequence("ranges", DuckDBFile(db_path))
+db_seq
 }

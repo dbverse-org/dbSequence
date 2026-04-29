@@ -56,10 +56,10 @@ if (requireNamespace("GenomicRanges", quietly = TRUE)) {
     df <- tryCatch(
       dplyr::collect(from@value),
       error = function(e) {
-        stop(
-          "Failed to collect data from dbSequence\nError: ",
-          e$message
-        )
+        cli::cli_abort(c(
+          "Failed to collect data from dbSequence.",
+          "x" = conditionMessage(e)
+        ))
       }
     )
 
@@ -215,6 +215,13 @@ if (requireNamespace("GenomicRanges", quietly = TRUE)) {
 #' @param x (required) A dbSequence object
 #' @param ... (optional) Additional arguments (currently unused)
 #' @return A dbSequence view with only range columns
+#' @aliases asRanges,dbSequence-method
+#' @examples
+#' bed <- system.file("extdata", "example.bed", package = "dbSequence")
+#' db_path <- tempfile(fileext = ".duckdb")
+#' db_seq <- read_bed(bed, dest = DuckDBFile(db_path), lazy = FALSE)
+#' asRanges(db_seq)
+#'
 #' @export
 setMethod("asRanges", "dbSequence", function(x, ...) {
   # Return a view with chrom/start/end/strand cols only
@@ -248,39 +255,45 @@ setMethod("asRanges", "dbSequence", function(x, ...) {
 
   col_names <- column_info$column_name
 
+  quote_id <- function(identifier) {
+    as.character(DBI::dbQuoteIdentifier(conn_obj, identifier))
+  }
+
   # Map common genomic range column names
   range_cols <- character()
 
   # Chromosome/sequence name column
   if ("reference_sequence_name" %in% col_names) {
-    range_cols <- c(range_cols, "reference_sequence_name AS seqnames")
+    range_cols <- c(range_cols, paste(quote_id("reference_sequence_name"), "AS", quote_id("seqnames")))
+  } else if ("seqnames" %in% col_names) {
+    range_cols <- c(range_cols, quote_id("seqnames"))
   } else if ("chrom" %in% col_names) {
-    range_cols <- c(range_cols, "chrom AS seqnames")
+    range_cols <- c(range_cols, paste(quote_id("chrom"), "AS", quote_id("seqnames")))
   } else if ("chr" %in% col_names) {
-    range_cols <- c(range_cols, "chr AS seqnames")
+    range_cols <- c(range_cols, paste(quote_id("chr"), "AS", quote_id("seqnames")))
   } else if ("contig" %in% col_names) {
-    range_cols <- c(range_cols, "contig AS seqnames")
+    range_cols <- c(range_cols, paste(quote_id("contig"), "AS", quote_id("seqnames")))
   }
 
   # Start position
   if ("start" %in% col_names) {
-    range_cols <- c(range_cols, "start")
+    range_cols <- c(range_cols, quote_id("start"))
   } else if ("pos" %in% col_names) {
-    range_cols <- c(range_cols, "pos AS start")
+    range_cols <- c(range_cols, paste(quote_id("pos"), "AS", quote_id("start")))
   } else if ("position" %in% col_names) {
-    range_cols <- c(range_cols, "position AS start")
+    range_cols <- c(range_cols, paste(quote_id("position"), "AS", quote_id("start")))
   }
 
   # End position (for ranges like BED files)
   if ("end" %in% col_names) {
-    range_cols <- c(range_cols, "end")
+    range_cols <- c(range_cols, quote_id("end"))
   } else if ("stop" %in% col_names) {
-    range_cols <- c(range_cols, "stop AS end")
+    range_cols <- c(range_cols, paste(quote_id("stop"), "AS", quote_id("end")))
   }
 
   # Strand (if available)
   if ("strand" %in% col_names) {
-    range_cols <- c(range_cols, "strand")
+    range_cols <- c(range_cols, quote_id("strand"))
   }
 
   if (length(range_cols) == 0) {

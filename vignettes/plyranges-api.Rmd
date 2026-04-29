@@ -47,8 +47,7 @@ region <- GRanges("chr1:100-500")
 # Filter to overlapping fragments - stays lazy
 overlapping <- filter_by_overlaps(fragments, region)
 
-# Check the SQL being generated
-dbplyr::sql_render(overlapping@value)
+overlapping
 ```
 
 ### Multiple Regions
@@ -74,7 +73,7 @@ frags_orig <- read_bed(bed_file, dest = dest, table_name = "fragments", lazy = F
 
 # Create a shared connection (reuse the one from peaks_orig)
 # This is required because dplyr queries cannot span multiple connections
-con <- dbplyr::remote_con(peaks_orig@value)
+con <- dbProject::conn(peaks_orig)
 frags_shared <- dbSequence("fragments", file_source = dest, .conn = con)
 
 # Now both objects share 'con', so we can join them lazily
@@ -147,4 +146,6 @@ filter_by_overlaps(bam_data, region)
 
 ## Next Steps
 
-
+```{r sessionInfo}
+sessionInfo()
+```

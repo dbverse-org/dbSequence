@@ -33,18 +33,12 @@
 #'   returns dbSequence if range columns are preserved, otherwise returns tbl.
 #'
 #' @examples
-#' \dontrun{
-#' # Pool APA counts by peak and cell
-#' apa_pooled <- pool(
-#'   apa_long_tbl,
-#'   group_by = c("peak_name", "cell_id"),
-#'   value_col = "x",
-#'   name = "apa_pooled_cell"
-#' )
+#' bed <- system.file("extdata", "example.bed", package = "dbSequence")
+#' db_seq <- read_bed(bed)
 #'
-#' # Pool with mean instead of sum
-#' avg_scores <- pool(db_seq, group_by = "gene", value_col = "score", fun = "mean")
-#' }
+#' # Pool feature scores by feature name
+#' pooled <- pool(db_seq, group_by = "name", value_col = "score")
+#' pooled
 #'
 #' @export
 pool <- function(x, group_by, value_col = NULL, fun = "sum",

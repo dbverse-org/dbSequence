@@ -6,6 +6,22 @@
 \usage{
 \S4method{import}{character,missing,ANY}(con, format, text, dest, table_name = NULL, ...)
 }
+\arguments{
+\item{con}{A file path.}
+
+\item{format}{Import format; unused for these methods.}
+
+\item{text}{Text input; unused for these methods.}
+
+\item{dest}{A \code{DuckDBFile} destination.}
+
+\item{table_name}{Table name to create. If \code{NULL}, the file extension is used.}
+
+\item{...}{Additional arguments.}
+}
+\value{
+A dbSequence object backed by a DuckDB table.
+}
 \description{
 Import character file paths into DuckDB (auto-detect format)
 }

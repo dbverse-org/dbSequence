@@ -40,17 +40,11 @@ Note that this collects all data from DuckDB into memory. For large
 datasets, consider filtering first using dplyr verbs.
 }
 \examples{
-\dontrun{
 # Import BED file to dbSequence
-db_seq <- read_bed("regions.bed")
+bed <- system.file("extdata", "example.bed", package = "dbSequence")
+db_seq <- read_bed(bed)
 
 # Convert to GRanges (collects data)
 gr <- as_granges(db_seq)
-
-# Or in a pipeline
-db_seq \%>\%
-  filter(score > 100) \%>\%
-  as_granges()
-}
 
 }

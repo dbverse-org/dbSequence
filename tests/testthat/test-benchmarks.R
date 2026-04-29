@@ -17,6 +17,7 @@ test_that("BAM file benchmarks - dbSequence vs samtools", {
 
   skip_if_not(file.exists(bam_file), "No BAM test file found")
   skip_if(file.size(bam_file) == 0, "BAM file is empty")
+  skip_if(Sys.which("samtools") == "", "samtools not available")
 
   # Check if BAM index exists, if not create it
   bai_file <- paste0(bam_file, ".bai")

@@ -1,11 +1,9 @@
 Package: dbSequence
 Title: DuckDB-Backed Interface for Large-Scale Genomic Data
-Version: 0.0.0.9000
+Version: 0.99.0
 Authors@R: 
     person("Edward", "C. Ruiz", , "ecr7407@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-9174-5387"))
-Author: Edward C. Ruiz <ecr7407@gmail.com>
-Maintainer: Edward C. Ruiz <ecr7407@gmail.com>
 Description: Provides a DuckDB-backed infrastructure for working with 
     large-scale genomic data that exceeds available memory. Supports 
     lazy evaluation of genomic ranges and efficient overlap queries.
@@ -18,6 +16,8 @@ biocViews: Infrastructure, DataImport, Sequencing, Coverage, DataRepresentation
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.5.0)
 Imports:
     methods,
     duckdb,
@@ -38,7 +38,6 @@ Imports:
     crayon
 Suggests:
     testthat (>= 3.0.0),
-    exonr,
     SingleCellExperiment,
     scater,
     knitr,
@@ -47,4 +46,3 @@ Suggests:
     microbenchmark
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-

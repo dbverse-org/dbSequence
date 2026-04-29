@@ -14,5 +14,11 @@
 #' @param x (required) A dbSequence object
 #' @param ... (optional) Additional arguments
 #' @return A view of the dbSequence with only range columns (seqnames, start, end, strand)
+#' @examples
+#' bed <- system.file("extdata", "example.bed", package = "dbSequence")
+#' db_path <- tempfile(fileext = ".duckdb")
+#' db_seq <- read_bed(bed, dest = DuckDBFile(db_path), lazy = FALSE)
+#' asRanges(db_seq)
+#'
 #' @export
 setGeneric("asRanges", function(x, ...) standardGeneric("asRanges"))

@@ -15,13 +15,11 @@
 #' @export
 #' @importFrom methods new
 #' @examples
-#' \dontrun{
 #' # Create DuckDBFile for existing database
-#' db_file <- DuckDBFile("data.duckdb")
+#' db_file <- DuckDBFile(tempfile(fileext = ".duckdb"))
 #'
 #' # Create DuckDBFile for in-memory database
 #' mem_db <- DuckDBFile(":memory:")
-#' }
 DuckDBFile <- function(resource) {
   # Input validation
   stopifnot(is.character(resource), length(resource) == 1, !is.na(resource))
@@ -43,11 +41,13 @@ DuckDBFile <- function(resource) {
 #' @return A dbSequence object
 #' @export
 #' @examples
-#' \dontrun{
-#' # Create a dbSequence object
-#' db_file <- DuckDBFile("data.duckdb")
-#' db_seq <- dbSequence("variants_table", db_file)
-#' }
+#' db_path <- tempfile(fileext = ".duckdb")
+#' con <- DBI::dbConnect(duckdb::duckdb(), dbdir = db_path)
+#' DBI::dbWriteTable(con, "ranges", data.frame(seqnames = "chr1", start = 1, end = 10))
+#' DBI::dbDisconnect(con, shutdown = TRUE)
+#'
+#' db_seq <- dbSequence("ranges", DuckDBFile(db_path))
+#' db_seq
 dbSequence <- function(
   table_name,
   file_source = NULL,
@@ -136,4 +136,3 @@ dbSequence <- function(
     file_source = file_source_char
   )
 }
-

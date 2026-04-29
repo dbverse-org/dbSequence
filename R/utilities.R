@@ -24,7 +24,11 @@
     {
       con <- .get_duckdb_connection(file_path)
       on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
-      DBI::dbGetQuery(con, query)
+      if (grepl("^\\s*(SELECT|PRAGMA|DESCRIBE|SHOW)\\b", query, ignore.case = TRUE)) {
+        DBI::dbGetQuery(con, query)
+      } else {
+        DBI::dbExecute(con, query)
+      }
     },
     error = function(e) {
       warning("DuckDB query failed: ", e$message)
@@ -101,6 +105,7 @@
 #' @description Display a summary of the dbSequence object and preview the table data
 #'
 #' @param object A dbSequence object
+#' @return Invisibly returns NULL.
 #' @importFrom methods setMethod
 #' @importFrom crayon make_style
 #' @importFrom dplyr tbl
@@ -156,6 +161,7 @@ setMethod("show", "dbSequence", function(object) {
 #' @description Display information about the DuckDBFile object.
 #'
 #' @param object A DuckDBFile object
+#' @return Invisibly returns NULL.
 setMethod("show", "DuckDBFile", function(object) {
   cat("DuckDBFile object\n")
   cat("Path:", object@path, "\n")
@@ -174,62 +180,17 @@ setMethod("show", "DuckDBFile", function(object) {
 #'
 #' @param x (required) A dbSequence object
 #' @return character: the table name
+#' @examples
+#' bed <- system.file("extdata", "example.bed", package = "dbSequence")
+#' db_seq <- read_bed(bed)
+#' tableName(db_seq)
+#'
 #' @export
 setGeneric("tableName", function(x) standardGeneric("tableName"))
 
+#' @rdname tableName
+#' @aliases tableName,dbSequence-method
 #' @export
 setMethod("tableName", "dbSequence", function(x) {
   x@name
-})
-
-#' @title Get file source from dbSequence
-#' @name fileSource
-#'
-#' @description Extract the file source path from a dbSequence object.
-#'
-#' @param x (required) A dbSequence object
-#' @return character: the source file path
-#' @export
-setGeneric("fileSource", function(x) standardGeneric("fileSource"))
-
-#' @export
-setMethod("fileSource", "dbSequence", function(x) {
-  x@file_source
-})
-
-# Backwards compatibility for snake_case function names
-# These are deprecated - use camelCase versions
-
-#' @title Get table name from dbSequence (deprecated)
-#' @description Use tableName() instead. This function is deprecated.
-#' @param x (required) A dbSequence object
-#' @return character: the table name
-#' @export
-setGeneric("table_name", function(x) standardGeneric("table_name"))
-
-#' @export
-setMethod("table_name", "dbSequence", function(x) {
-  .Deprecated(
-    "tableName",
-    package = "dbSequence",
-    msg = "table_name() is deprecated. Use tableName() instead."
-  )
-  tableName(x)
-})
-
-#' @title Get file source from dbSequence (deprecated)
-#' @description Use fileSource() instead. This function is deprecated.
-#' @param x (required) A dbSequence object
-#' @return character: the source file path
-#' @export
-setGeneric("file_source", function(x) standardGeneric("file_source"))
-
-#' @export
-setMethod("file_source", "dbSequence", function(x) {
-  .Deprecated(
-    "fileSource",
-    package = "dbSequence",
-    msg = "file_source() is deprecated. Use fileSource() instead."
-  )
-  fileSource(x)
 })

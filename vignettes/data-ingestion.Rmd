@@ -11,7 +11,9 @@ vignette: >
 knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>",
-    eval = FALSE
+    eval = TRUE,
+    warning = FALSE,
+    message = FALSE
 )
 ```
 
@@ -33,8 +35,10 @@ dbSequence stores genomic data in DuckDB, enabling analysis of datasets larger t
 ```{r quick-start}
 library(dbSequence)
 
+bed_file <- system.file("extdata", "example.bed", package = "dbSequence")
+
 # Import a BED file
-db_seq <- read_bed("fragments.bed")
+db_seq <- read_bed(bed_file)
 
 # Data stays in DuckDB - this is a lazy reference
 db_seq
@@ -47,10 +51,13 @@ For more control, use the BiocIO `import()` function:
 library(BiocIO)
 library(rtracklayer)
 
+bed_file <- system.file("extdata", "example.bed", package = "dbSequence")
+db_file <- tempfile(fileext = ".duckdb")
+
 # Specify destination database
 db_seq <- import(
-    BEDFile("fragments.bed"),
-    dest = DuckDBFile("my_database.duckdb"),
+    BEDFile(bed_file),
+    dest = DuckDBFile(db_file),
     table_name = "fragments"
 )
 ```
@@ -61,24 +68,26 @@ The key feature: data never loads into R memory.
 
 ```{r lazy-demo}
 # This does NOT load data
-db_seq <- read_bed("large_file.bed")
+db_seq <- read_bed(bed_file)
 
 # Still no data in memory - just adds a filter condition
-filtered <- dplyr::filter(db_seq@value, seqnames == "chr1")
+region <- GenomicRanges::GRanges("chr1:100-500")
+filtered <- filter_by_overlaps(db_seq, region)
 
 # Data only loads when you explicitly collect
-result <- dplyr::collect(filtered) # NOW data enters R
+result <- as_granges(filtered) # NOW data enters R
 ```
 
 ## Multiple Tables
 
 Store multiple datasets in one database:
 ```{r multiple-tables}
-db <- DuckDBFile("my_project.duckdb")
+db <- DuckDBFile(tempfile(fileext = ".duckdb"))
+gff_file <- system.file("extdata", "example.gff3", package = "dbSequence")
 
 # Import different files to same database
-peaks <- import(BEDFile("peaks.bed"), dest = db, table_name = "peaks")
-genes <- import(GFFFile("genes.gff3"), dest = db, table_name = "genes")
+peaks <- import(BEDFile(bed_file), dest = db, table_name = "peaks")
+genes <- import(GFFFile(gff_file), dest = db, table_name = "genes")
 ```
 
 ## Connection Management
@@ -86,10 +95,10 @@ genes <- import(GFFFile("genes.gff3"), dest = db, table_name = "genes")
 dbSequence manages connections automatically, but for long sessions:
 ```{r connections}
 # Access the underlying connection
-con <- dbplyr::remote_con(db_seq@value)
+con <- dbProject::conn(db_seq)
 
 # For manual control, create your own connection
-con <- DBI::dbConnect(duckdb::duckdb(), "my_database.duckdb")
+con <- DBI::dbConnect(duckdb::duckdb(), tempfile(fileext = ".duckdb"))
 # ... do work ...
 DBI::dbDisconnect(con, shutdown = TRUE)
 ```
@@ -98,3 +107,6 @@ DBI::dbDisconnect(con, shutdown = TRUE)
 
 - [plyranges API](plyranges-api.html) - Range operations on lazy data
 
+```{r sessionInfo}
+sessionInfo()
+```

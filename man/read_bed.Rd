@@ -35,15 +35,12 @@ plyranges version which returns GRanges, this returns a dbSequence
 object backed by DuckDB for lazy evaluation.
 }
 \examples{
-\dontrun{
 # Read BED file (lazy, stays in DuckDB)
-db_seq <- read_bed("regions.bed")
+bed <- system.file("extdata", "example.bed", package = "dbSequence")
+db_seq <- read_bed(bed)
 
-# Filter before collecting
-db_seq \%>\%
-  filter(score > 100) \%>\%
-  as_granges()
-}
+# Collect to GRanges when needed
+gr <- as_granges(db_seq)
 
 }
 \seealso{

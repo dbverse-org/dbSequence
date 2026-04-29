@@ -9,6 +9,9 @@
 \arguments{
 \item{object}{A dbSequence object}
 }
+\value{
+Invisibly returns NULL.
+}
 \description{
 Display a summary of the dbSequence object and preview the table data
 }

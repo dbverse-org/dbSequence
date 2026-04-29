@@ -31,3 +31,10 @@ S3 method for \code{dplyr::compute()} that materializes the underlying lazy
 query into a DuckDB table, returning a new dbSequence pointing at the
 computed table.
 }
+\examples{
+bed <- system.file("extdata", "example.bed", package = "dbSequence")
+db_seq <- read_bed(bed)
+materialized <- compute.dbSequence(db_seq, name = "bed_materialized")
+materialized
+
+}

@@ -42,6 +42,12 @@ A dbSequence object
 plyranges-style function to read GFF files. Returns a
 dbSequence object backed by DuckDB.
 }
+\examples{
+gff <- system.file("extdata", "example.gff3", package = "dbSequence")
+db_seq <- read_gff(gff)
+db_seq
+
+}
 \seealso{
 \code{\link[BiocIO]{import}}, \code{\link[rtracklayer]{GFFFile}}
 }

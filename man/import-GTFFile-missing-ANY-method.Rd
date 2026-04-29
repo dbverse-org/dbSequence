@@ -6,6 +6,22 @@
 \usage{
 \S4method{import}{GTFFile,missing,ANY}(con, format, text, dest, table_name = "gtf_data", ...)
 }
+\arguments{
+\item{con}{A file connection object.}
+
+\item{format}{Import format; unused for these methods.}
+
+\item{text}{Text input; unused for these methods.}
+
+\item{dest}{A \code{DuckDBFile} destination.}
+
+\item{table_name}{Table name to create.}
+
+\item{...}{Additional arguments.}
+}
+\value{
+A dbSequence object backed by a DuckDB table.
+}
 \description{
 Import GTF files into DuckDB
 }

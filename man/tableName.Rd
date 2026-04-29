@@ -2,9 +2,12 @@
 % Please edit documentation in R/utilities.R
 \name{tableName}
 \alias{tableName}
+\alias{tableName,dbSequence-method}
 \title{Get table name from dbSequence}
 \usage{
 tableName(x)
+
+\S4method{tableName}{dbSequence}(x)
 }
 \arguments{
 \item{x}{(required) A dbSequence object}
@@ -14,4 +17,10 @@ character: the table name
 }
 \description{
 Extract the table name from a dbSequence object.
+}
+\examples{
+bed <- system.file("extdata", "example.bed", package = "dbSequence")
+db_seq <- read_bed(bed)
+tableName(db_seq)
+
 }

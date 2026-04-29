@@ -59,18 +59,12 @@ as_granges.default <- function(.data, ..., keep_mcols = TRUE) {
 #'   datasets, consider filtering first using dplyr verbs.
 #'
 #' @examples
-#' \dontrun{
 #' # Import BED file to dbSequence
-#' db_seq <- read_bed("regions.bed")
+#' bed <- system.file("extdata", "example.bed", package = "dbSequence")
+#' db_seq <- read_bed(bed)
 #'
 #' # Convert to GRanges (collects data)
 #' gr <- as_granges(db_seq)
-#'
-#' # Or in a pipeline
-#' db_seq %>%
-#'   filter(score > 100) %>%
-#'   as_granges()
-#' }
 #'
 #' @rdname as_granges
 #' @export
@@ -101,15 +95,12 @@ as_granges.dbSequence <- function(.data, ..., keep_mcols = TRUE) {
 #' @return A dbSequence object
 #'
 #' @examples
-#' \dontrun{
 #' # Read BED file (lazy, stays in DuckDB)
-#' db_seq <- read_bed("regions.bed")
+#' bed <- system.file("extdata", "example.bed", package = "dbSequence")
+#' db_seq <- read_bed(bed)
 #'
-#' # Filter before collecting
-#' db_seq %>%
-#'   filter(score > 100) %>%
-#'   as_granges()
-#' }
+#' # Collect to GRanges when needed
+#' gr <- as_granges(db_seq)
 #'
 #' @seealso \code{\link[BiocIO]{import}}, \code{\link[rtracklayer]{BEDFile}}
 #' @export
@@ -141,6 +132,11 @@ read_bed <- function(
 #' @param ... Additional arguments passed to import()
 #'
 #' @return A dbSequence object
+#'
+#' @examples
+#' gff <- system.file("extdata", "example.gff3", package = "dbSequence")
+#' db_seq <- read_gff(gff)
+#' db_seq
 #'
 #' @seealso \code{\link[BiocIO]{import}}, \code{\link[rtracklayer]{GFFFile}}
 #' @export
@@ -185,6 +181,13 @@ read_gff3 <- function(
 #'   this function immediately imports the BAM data into DuckDB.
 #'
 #' @seealso \code{\link[BiocIO]{import}}, \code{\link[Rsamtools]{BamFile}}
+#' @examples
+#' if (nzchar(system.file(package = "exonr"))) {
+#'   bam <- system.file("extdata", "example.bam", package = "dbSequence")
+#'   db_seq <- read_bam(bam, dest = DuckDBFile(tempfile(fileext = ".duckdb")))
+#'   db_seq
+#' }
+#'
 #' @export
 read_bam <- function(
   file,
@@ -210,6 +213,11 @@ read_bam <- function(
 #' @param ... Additional arguments passed to import()
 #'
 #' @return A dbSequence object
+#'
+#' @examples
+#' vcf <- system.file("extdata", "example.vcf", package = "dbSequence")
+#' db_seq <- read_vcf(vcf)
+#' db_seq
 #'
 #' @seealso \code{\link[BiocIO]{import}}, \code{\link[VariantAnnotation]{VcfFile}}
 #' @export

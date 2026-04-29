@@ -30,10 +30,11 @@ Two intervals overlap if: start1 <= end2 AND start2 <= end1 AND chr1 == chr2
 The operation is pushed down to DuckDB, so only matching rows are retrieved.
 }
 \examples{
-\dontrun{
 # Filter fragments to a specific region
-region <- GenomicRanges::GRanges("chr1:1000-2000")
+bed <- system.file("extdata", "example.bed", package = "dbSequence")
+fragments <- read_bed(bed)
+region <- GenomicRanges::GRanges("chr1:100-500")
 filtered <- filter_by_overlaps(fragments, region)
-}
+filtered
 
 }

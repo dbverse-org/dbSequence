@@ -21,6 +21,10 @@ NULL
 #' @slot path Character string specifying the path to the DuckDB database file.
 #'   Can be a file path or ":memory:" for in-memory databases.
 #'
+#' @examples
+#' db_file <- DuckDBFile(tempfile(fileext = ".duckdb"))
+#' db_file
+#'
 #' @export
 setClass("DuckDBFile", contains = "BiocFile", slots = c(path = "character"))
 
@@ -38,6 +42,12 @@ setClass("DuckDBFile", contains = "BiocFile", slots = c(path = "character"))
 #' @slot value dplyr tbl representing the genomic data in the database (inherited from dbData)
 #' @slot name character table name in database (inherited from dbData)
 #' @slot file_source character source file path or identifier (immutable after creation)
+#'
+#' @examples
+#' bed <- system.file("extdata", "example.bed", package = "dbSequence")
+#' db_seq <- read_bed(bed)
+#' db_seq
+#'
 #' @export
 setClass(
   "dbSequence",

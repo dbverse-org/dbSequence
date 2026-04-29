@@ -19,3 +19,9 @@ Extends dbData to wrap genomic data stored in DuckDB tables.
 \item{\code{file_source}}{character source file path or identifier (immutable after creation)}
 }}
 
+\examples{
+bed <- system.file("extdata", "example.bed", package = "dbSequence")
+db_seq <- read_bed(bed)
+db_seq
+
+}

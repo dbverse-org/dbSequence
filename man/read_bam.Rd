@@ -26,6 +26,14 @@ dbSequence object backed by DuckDB.
 Unlike plyranges::read_bam which returns a DeferredGenomicRanges,
 this function immediately imports the BAM data into DuckDB.
 }
+\examples{
+if (nzchar(system.file(package = "exonr"))) {
+  bam <- system.file("extdata", "example.bam", package = "dbSequence")
+  db_seq <- read_bam(bam, dest = DuckDBFile(tempfile(fileext = ".duckdb")))
+  db_seq
+}
+
+}
 \seealso{
 \code{\link[BiocIO]{import}}, \code{\link[Rsamtools]{BamFile}}
 }

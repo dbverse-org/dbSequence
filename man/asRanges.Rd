@@ -17,3 +17,10 @@ A view of the dbSequence with only range columns (seqnames, start, end, strand)
 \description{
 Extract genomic ranges from dbSequence objects
 }
+\examples{
+bed <- system.file("extdata", "example.bed", package = "dbSequence")
+db_path <- tempfile(fileext = ".duckdb")
+db_seq <- read_bed(bed, dest = DuckDBFile(db_path), lazy = FALSE)
+asRanges(db_seq)
+
+}

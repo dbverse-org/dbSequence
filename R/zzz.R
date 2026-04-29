@@ -8,7 +8,7 @@ utils::globalVariables(c(
   "bin_start", "bin_end", "count", "group",
   "start", "end", "y", "y_chr", "y_start", "y_end",
   # ggplot2 aes() variables
-  "xmin", "xmax",
+  "xmin", "xmax", ".data", ":=",
   # base R
   "setNames"
 ))

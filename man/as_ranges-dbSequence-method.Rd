@@ -2,6 +2,7 @@
 % Please edit documentation in R/coercion.R
 \name{as_ranges-dbSequence-method}
 \alias{as_ranges-dbSequence-method}
+\alias{asRanges,dbSequence-method}
 \title{Extract range columns as a view}
 \usage{
 \S4method{asRanges}{dbSequence}(x, ...)
@@ -18,4 +19,11 @@ A dbSequence view with only range columns
 Returns a view of the dbSequence with only the core range columns
 (seqnames, start, end, strand). This is useful for range operations
 that don't need metadata columns.
+}
+\examples{
+bed <- system.file("extdata", "example.bed", package = "dbSequence")
+db_path <- tempfile(fileext = ".duckdb")
+db_seq <- read_bed(bed, dest = DuckDBFile(db_path), lazy = FALSE)
+asRanges(db_seq)
+
 }

@@ -33,6 +33,12 @@ A dbSequence object
 Read VCF variant files into DuckDB. Returns a dbSequence
 object.
 }
+\examples{
+vcf <- system.file("extdata", "example.vcf", package = "dbSequence")
+db_seq <- read_vcf(vcf)
+db_seq
+
+}
 \seealso{
 \code{\link[BiocIO]{import}}, \code{\link[VariantAnnotation]{VcfFile}}
 }

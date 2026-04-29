@@ -9,6 +9,9 @@
 \arguments{
 \item{object}{A DuckDBFile object}
 }
+\value{
+Invisibly returns NULL.
+}
 \description{
 Display information about the DuckDBFile object.
 }

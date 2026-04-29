@@ -16,6 +16,14 @@ NULL
 # ------------------------------------------------------------------------------
 
 #' Import BAM files into DuckDB
+#' @param con A file connection object.
+#' @param format Import format; unused for these methods.
+#' @param text Text input; unused for these methods.
+#' @param dest A `DuckDBFile` destination.
+#' @param table_name Table name to create.
+#' @param .conn Optional existing DBI connection.
+#' @param ... Additional arguments.
+#' @return A dbSequence object backed by a DuckDB table.
 setMethod(
   "import",
   signature(con = "BamFile", format = "missing", text = "ANY"),
@@ -43,6 +51,13 @@ setMethod(
 )
 
 #' Import VCF files into DuckDB
+#' @param con A file connection object.
+#' @param format Import format; unused for these methods.
+#' @param text Text input; unused for these methods.
+#' @param dest A `DuckDBFile` destination.
+#' @param table_name Table name to create.
+#' @param ... Additional arguments.
+#' @return A dbSequence object backed by a DuckDB table.
 setMethod(
   "import",
   signature(con = "VcfFile", format = "missing", text = "ANY"),
@@ -61,6 +76,13 @@ setMethod(
 )
 
 #' Import BED files into DuckDB
+#' @param con A file connection object.
+#' @param format Import format; unused for these methods.
+#' @param text Text input; unused for these methods.
+#' @param dest A `DuckDBFile` destination.
+#' @param table_name Table name to create.
+#' @param ... Additional arguments.
+#' @return A dbSequence object backed by a DuckDB table.
 setMethod(
   "import",
   signature(con = "BEDFile", format = "missing", text = "ANY"),
@@ -79,6 +101,13 @@ setMethod(
 )
 
 #' Import GTF files into DuckDB
+#' @param con A file connection object.
+#' @param format Import format; unused for these methods.
+#' @param text Text input; unused for these methods.
+#' @param dest A `DuckDBFile` destination.
+#' @param table_name Table name to create.
+#' @param ... Additional arguments.
+#' @return A dbSequence object backed by a DuckDB table.
 setMethod(
   "import",
   signature(con = "GTFFile", format = "missing", text = "ANY"),
@@ -97,6 +126,13 @@ setMethod(
 )
 
 #' Import GFF files into DuckDB
+#' @param con A file connection object.
+#' @param format Import format; unused for these methods.
+#' @param text Text input; unused for these methods.
+#' @param dest A `DuckDBFile` destination.
+#' @param table_name Table name to create.
+#' @param ... Additional arguments.
+#' @return A dbSequence object backed by a DuckDB table.
 setMethod(
   "import",
   signature(con = "GFFFile", format = "missing", text = "ANY"),
@@ -115,6 +151,13 @@ setMethod(
 )
 
 #' Import character file paths into DuckDB (auto-detect format)
+#' @param con A file path.
+#' @param format Import format; unused for these methods.
+#' @param text Text input; unused for these methods.
+#' @param dest A `DuckDBFile` destination.
+#' @param table_name Table name to create. If `NULL`, the file extension is used.
+#' @param ... Additional arguments.
+#' @return A dbSequence object backed by a DuckDB table.
 setMethod(
   "import",
   signature(con = "character", format = "missing", text = "ANY"),
@@ -146,6 +189,13 @@ setMethod(
 )
 
 #' Import FASTA files into DuckDB
+#' @param con A file connection object.
+#' @param format Import format; unused for these methods.
+#' @param text Text input; unused for these methods.
+#' @param dest A `DuckDBFile` destination.
+#' @param table_name Table name to create.
+#' @param ... Additional arguments.
+#' @return A dbSequence object backed by a DuckDB table.
 setMethod(
   "import",
   signature(con = "FastaFile", format = "missing", text = "ANY"),
@@ -209,7 +259,7 @@ setMethod(
   }
 
   # Try to use exon if available, otherwise fall back to simple methods
-  if (requireNamespace("exonr", quietly = TRUE)) {
+  if (nzchar(system.file(package = "exonr"))) {
     .import_with_exon(file_path, con, table_name, file_type, exon_options)
   } else {
     .import_with_duckdb(file_path, con, table_name, file_type, exon_options)
@@ -537,7 +587,7 @@ setMethod(
   exon_options
 ) {
   # Create ExonRSessionContext for SQL-based processing with DataFusion
-  session <- exonr::ExonRSessionContext$new()
+  session <- getExportedValue("exonr", "ExonRSessionContext")$new()
 
   # Set exon options based on file type
   if (file_type == "bam" && isTRUE(exon_options$parse_tags)) {

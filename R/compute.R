@@ -16,6 +16,12 @@
 #'
 #' @return A dbSequence object backed by the materialized table.
 #'
+#' @examples
+#' bed <- system.file("extdata", "example.bed", package = "dbSequence")
+#' db_seq <- read_bed(bed)
+#' materialized <- compute.dbSequence(db_seq, name = "bed_materialized")
+#' materialized
+#'
 #' @export
 compute.dbSequence <- function(
   x,
