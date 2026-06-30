@@ -1,6 +1,9 @@
 ---
 title: "Data Ingestion"
-output: rmarkdown::html_vignette
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
 vignette: >
   %\VignetteIndexEntry{Data Ingestion}
   %\VignetteEngine{knitr::rmarkdown}
@@ -17,9 +20,19 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Overview
+## Installation
+
+```{r installation, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+BiocManager::install("dbSequence")
+```
+
+## Introduction
 
 dbSequence stores genomic data in DuckDB, enabling analysis of datasets larger than available memory. Data stays in the database—R operates on lazy references.
+Compared with general out-of-memory tools in the CRAN High-Performance Computing Task View and Delayed* Bioconductor packages, dbSequence focuses on database-backed genomic interval ingestion and overlap queries.
 
 ## Supported Formats
 

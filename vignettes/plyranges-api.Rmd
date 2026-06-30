@@ -1,6 +1,9 @@
 ---
 title: "plyranges API"
-output: rmarkdown::html_vignette
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_depth: 2
 vignette: >
   %\VignetteIndexEntry{plyranges API}
   %\VignetteEngine{knitr::rmarkdown}
@@ -20,9 +23,10 @@ library(GenomicRanges)
 library(dbplyr)
 ```
 
-## Overview
+## Introduction
 
 dbSequence provides plyranges-compatible functions that translate to SQL queries. Operations execute in DuckDB, not R, enabling analysis of datasets larger than memory.
+This complements Delayed* Bioconductor workflows by targeting database-backed interval queries over genomic files.
 
 ## Core Functions
 
