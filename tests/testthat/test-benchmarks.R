@@ -41,7 +41,7 @@ test_that("BAM file benchmarks - dbSequence vs samtools", {
   )
 
   # Get connection to query the imported data
-  con <- bam_result@value$src$con
+  con <- dbSequence:::.dbseq_value(bam_result)$src$con
 
   # Verify the import worked
   total_reads <- DBI::dbGetQuery(con, "SELECT COUNT(*) as n FROM bam_data")$n

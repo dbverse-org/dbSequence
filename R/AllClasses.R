@@ -57,6 +57,15 @@ setClass(
   )
 )
 
+.dbseq_value <- function(x) slot(x, "value")
+.dbseq_set_value <- function(x, value) {
+  slot(x, "value") <- value
+  x
+}
+.dbseq_file_source <- function(x) slot(x, "file_source")
+.dbseq_table_name <- function(x) slot(x, "name")
+.duckdb_file_path <- function(x) slot(x, "path")
+
 # Valid file extensions for genomic data
 .VALID_FILE_EXTENSIONS <- c(
   "bed",
@@ -82,7 +91,7 @@ setValidity("dbSequence", function(object) {
   errors <- character()
 
   # Check file_source
-  file_source <- object@file_source
+  file_source <- .dbseq_file_source(object)
   if (length(file_source) != 1) {
     errors <- c(errors, "file_source must be a single character string")
   } else if (!is.na(file_source) && file_source != "") {

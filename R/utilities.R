@@ -88,7 +88,7 @@
       }
 
       # Close connection if it's file-based
-      if (db_seq@file_source != ":memory:") {
+      if (fileSource(db_seq) != ":memory:") {
         DBI::dbDisconnect(con, shutdown = TRUE)
       }
     },
@@ -112,43 +112,45 @@
 setMethod("show", "dbSequence", function(object) {
   # Style for header
   grey_color <- crayon::make_style("grey60")
+  value <- .dbseq_value(object)
+  file_source <- fileSource(object)
 
   # Print metadata header
-  cat(grey_color("# Class:    dbSequence\n"))
+  message(grey_color("# Class:    dbSequence"))
 
   # Check if object has a valid value (tbl)
-  if (!is.null(object@value)) {
+  if (!is.null(value)) {
     # Object has a tbl in value slot - show it directly
-    return(show(object@value))
+    return(show(value))
   }
 
   # Object not initialized - try to establish connection and show table
   tryCatch(
     {
       # For file-based databases, try to create a connection
-      if (object@file_source != ":memory:") {
-        con <- .get_duckdb_connection(object@file_source)
+      if (file_source != ":memory:") {
+        con <- .get_duckdb_connection(file_source)
         table_tbl <- dplyr::tbl(con, tableName(object))
         on.exit(DBI::dbDisconnect(con, shutdown = TRUE))
         return(show(table_tbl))
       } else {
         # In-memory database without stored connection
-        cat(grey_color("# Source:   In-memory database (not initialized)\n"))
-        cat(grey_color("# Table:    ", tableName(object), "\n"))
-        cat(grey_color("# Note:     Connection required for data access\n"))
+        message(grey_color("# Source:   In-memory database (not initialized)"))
+        message(grey_color("# Table:    ", tableName(object)))
+        message(grey_color("# Note:     Connection required for data access"))
       }
     },
     error = function(e) {
-      if (object@file_source == ":memory:") {
-        cat(grey_color("# Source:   In-memory database (connection lost)\n"))
-        cat(grey_color("# Table:    ", tableName(object), "\n"))
-        cat(grey_color(
-          "# Note:     Connection may have been closed or not stored\n"
+      if (file_source == ":memory:") {
+        message(grey_color("# Source:   In-memory database (connection lost)"))
+        message(grey_color("# Table:    ", tableName(object)))
+        message(grey_color(
+          "# Note:     Connection may have been closed or not stored"
         ))
       } else {
-        cat(grey_color("# Source:   ", object@file_source, "\n"))
-        cat(grey_color("# Table:    ", tableName(object), "\n"))
-        cat(grey_color("# Status:   Table not accessible (", e$message, ")\n"))
+        message(grey_color("# Source:   ", file_source))
+        message(grey_color("# Table:    ", tableName(object)))
+        message(grey_color("# Status:   Table not accessible (", e$message, ")"))
       }
       invisible(NULL)
     }
@@ -163,13 +165,14 @@ setMethod("show", "dbSequence", function(object) {
 #' @param object A DuckDBFile object
 #' @return Invisibly returns NULL.
 setMethod("show", "DuckDBFile", function(object) {
-  cat("DuckDBFile object\n")
-  cat("Path:", object@path, "\n")
-  if (file.exists(object@path)) {
-    cat("File exists: TRUE\n")
-    cat("File size:", file.size(object@path), "bytes\n")
+  path <- .duckdb_file_path(object)
+  message("DuckDBFile object")
+  message("Path: ", path)
+  if (file.exists(path)) {
+    message("File exists: TRUE")
+    message("File size: ", file.size(path), " bytes")
   } else {
-    cat("File exists: FALSE (will be created when needed)\n")
+    message("File exists: FALSE (will be created when needed)")
   }
 })
 
@@ -186,11 +189,12 @@ setMethod("show", "DuckDBFile", function(object) {
 #' tableName(db_seq)
 #'
 #' @export
-setGeneric("tableName", function(x) standardGeneric("tableName"))
+tableName <- function(x) standardGeneric("tableName")
+setGeneric("tableName")
 
 #' @rdname tableName
 #' @aliases tableName,dbSequence-method
 #' @export
 setMethod("tableName", "dbSequence", function(x) {
-  x@name
+  .dbseq_table_name(x)
 })

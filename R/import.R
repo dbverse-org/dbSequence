@@ -231,7 +231,7 @@ setMethod(
 
   # Handle DuckDBFile object - extract path only
   if (is(dest_db, "DuckDBFile")) {
-    db_path <- dest_db@path
+    db_path <- .duckdb_file_path(dest_db)
   } else {
     db_path <- as.character(dest_db)
   }
@@ -300,7 +300,7 @@ setMethod(
 
   # Handle DuckDBFile object - extract path only
   if (is(dest_db, "DuckDBFile")) {
-    db_path <- dest_db@path
+    db_path <- .duckdb_file_path(dest_db)
   } else {
     db_path <- as.character(dest_db)
   }
@@ -512,13 +512,16 @@ setMethod(
   # Standardize BED coordinates: input BED is 0-based, half-open.
   # Convert to 1-based, closed intervals to match Bioconductor GRanges.
   if (is(res, "dbSequence")) {
-    tbl_value <- res@value
+    tbl_value <- .dbseq_value(res)
     if (!is.null(tbl_value) && all(c("start", "end") %in% colnames(tbl_value))) {
-      res@value <- tbl_value |>
-        dplyr::mutate(
-          start = as.integer(start) + 1L,
-          end = as.integer(end)
-        )
+      res <- .dbseq_set_value(
+        res,
+        tbl_value |>
+          dplyr::mutate(
+            start = as.integer(start) + 1L,
+            end = as.integer(end)
+          )
+      )
     }
   }
 

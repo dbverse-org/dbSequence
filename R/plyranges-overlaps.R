@@ -57,7 +57,7 @@ filter_by_overlaps.dbSequence <- function(x, y, ...) {
   .validate_for_range_ops(x, "filter_by_overlaps")
 
   # Get the tbl object and connection
-  tbl <- x@value
+  tbl <- .dbseq_value(x)
   if (is.null(tbl)) {
     cli::cli_abort("dbSequence object has no data (table may not exist)")
   }
@@ -73,7 +73,7 @@ filter_by_overlaps.dbSequence <- function(x, y, ...) {
 
   # Handle dbSequence y separately (table-to-table join)
   if (is(y, "dbSequence")) {
-    y_tbl <- y@value
+    y_tbl <- .dbseq_value(y)
     y_cols <- colnames(y_tbl)
     y_chr_col <- .detect_seqnames_col(y_cols)
     y_start_col <- .detect_start_col(y_cols)
@@ -101,8 +101,8 @@ filter_by_overlaps.dbSequence <- function(x, y, ...) {
     return(new(
       "dbSequence",
       value = result_tbl,
-      name = x@name,
-      file_source = x@file_source
+      name = tableName(x),
+      file_source = fileSource(x)
     ))
   }
 
@@ -146,8 +146,8 @@ filter_by_overlaps.dbSequence <- function(x, y, ...) {
   new(
     "dbSequence",
     value = result_tbl,
-    name = x@name,
-    file_source = x@file_source
+    name = tableName(x),
+    file_source = fileSource(x)
   )
 }
 
@@ -198,7 +198,7 @@ compute_coverage.dbSequence <- function(x, region, window = 100, ...) {
 
   # First filter to the region
   filtered <- filter_by_overlaps(x, region)
-  tbl <- filtered@value
+  tbl <- .dbseq_value(filtered)
 
   if (is.null(tbl)) {
     return(data.frame(bin_start = integer(), bin_end = integer(), count = integer()))

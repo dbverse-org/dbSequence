@@ -21,4 +21,5 @@
 #' asRanges(db_seq)
 #'
 #' @export
-setGeneric("asRanges", function(x, ...) standardGeneric("asRanges"))
+asRanges <- function(x, ...) standardGeneric("asRanges")
+setGeneric("asRanges")

@@ -10,7 +10,7 @@
 .is_compressed_source <- function(x) {
   if (!is(x, "dbSequence")) return(FALSE)
 
-  file_source <- x@file_source
+  file_source <- .dbseq_file_source(x)
   if (is.null(file_source) || is.na(file_source) || file_source == "") {
     return(FALSE)
   }
@@ -38,7 +38,7 @@
 .get_file_type <- function(x) {
   if (!is(x, "dbSequence")) return(NA_character_)
 
-  file_source <- x@file_source
+  file_source <- .dbseq_file_source(x)
   if (is.null(file_source) || is.na(file_source) || file_source == "") {
     return(NA_character_)
   }
@@ -69,11 +69,12 @@
 
   # BAM and CRAM are always problematic
   if (!is.na(file_type) && file_type %in% c("bam", "cram")) {
+    file_source <- .dbseq_file_source(x)
     cli::cli_abort(c(
       "x" = "{.fn {operation}} is not supported for {.field {toupper(file_type)}} files",
       "i" = "BAM/CRAM files are compressed and indexed differently",
       "i" = "For coverage on BAM files, use specialized tools like {.pkg Rsamtools}",
-      "!" = "Source file: {.file {x@file_source}}"
+      "!" = "Source file: {.file {file_source}}"
     ))
   }
 
@@ -86,10 +87,11 @@
   file_type <- .get_file_type(x)
 
   if (!is.na(file_type) && !file_type %in% allowed_types) {
+    file_source <- .dbseq_file_source(x)
     cli::cli_abort(c(
       "x" = "{.fn {operation}} is not supported for {.field {toupper(file_type)}} files",
       "i" = "Supported file types: {.field {toupper(allowed_types)}}",
-      "!" = "Source file: {.file {x@file_source}}"
+      "!" = "Source file: {.file {file_source}}"
     ))
   }
 
@@ -112,12 +114,13 @@
 #' try(fileSource(db_seq) <- "other.bed")
 #'
 #' @export
-setGeneric("fileSource", function(object) standardGeneric("fileSource"))
+fileSource <- function(object) standardGeneric("fileSource")
+setGeneric("fileSource")
 
 #' @rdname fileSource
 #' @export
 setMethod("fileSource", "dbSequence", function(object) {
-  object@file_source
+  .dbseq_file_source(object)
 })
 
 #' Replacement method for file_source - BLOCKED
@@ -134,16 +137,19 @@ setMethod("fileSource", "dbSequence", function(object) {
 #' db_seq <- read_bed(bed)
 #' try(fileSource(db_seq) <- "other.bed")
 #'
+#' @rdname fileSource
 #' @export
-setGeneric("fileSource<-", function(object, value) standardGeneric("fileSource<-"))
+`fileSource<-` <- function(object, value) standardGeneric("fileSource<-")
+setGeneric("fileSource<-")
 
 #' @rdname fileSource
 #' @export
 setReplaceMethod("fileSource", "dbSequence", function(object, value) {
+  file_source <- .dbseq_file_source(object)
   cli::cli_abort(c(
     "x" = "Cannot modify {.field file_source} after object creation",
     "i" = "The file source is set during {.fn import} or {.fn read_*} and is immutable",
-    "i" = "Current value: {.file {object@file_source}}",
+    "i" = "Current value: {.file {file_source}}",
     ">" = "If you need a different source, create a new {.cls dbSequence} object"
   ))
 })

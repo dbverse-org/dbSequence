@@ -3,9 +3,6 @@
 # Provides pool() S3 generic and methods for aggregating values by grouping
 # columns. This enables database-native aggregation without loading data into
 # memory.
-#
-# Example usage:
-#   pool(apa_tbl, group_by = c("peak_name", "cell_id"), value_col = "x")
 
 #' Pool (aggregate) values by grouping columns
 #'
@@ -63,7 +60,7 @@ pool.tbl_duckdb_connection <- function(x, group_by, value_col = "x",
                                         filter_zero = TRUE,
                                         temporary = TRUE, overwrite = TRUE, ...) {
   # Validate group_by columns exist
- available_cols <- colnames(x)
+  available_cols <- colnames(x)
   if (!all(group_by %in% available_cols)) {
     missing <- setdiff(group_by, available_cols)
     stop("Column(s) not found: ", paste(missing, collapse = ", "),
@@ -124,7 +121,7 @@ pool.dbSequence <- function(x, group_by, value_col = "score",
                             filter_zero = TRUE,
                             temporary = TRUE, overwrite = TRUE, ...) {
   # Use the underlying tbl
-  tbl <- x@value
+  tbl <- .dbseq_value(x)
 
   # Pool using tbl method
   result_tbl <- pool.tbl_duckdb_connection(
@@ -145,8 +142,8 @@ pool.dbSequence <- function(x, group_by, value_col = "score",
     # Return dbSequence
     methods::new("dbSequence",
         value = result_tbl,
-        name = name %||% x@name,
-        file_source = x@file_source)
+        name = name %||% tableName(x),
+        file_source = fileSource(x))
   } else {
     # Just return the tbl (no longer genomic ranges)
     result_tbl

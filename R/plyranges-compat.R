@@ -7,7 +7,7 @@
 # Key Design Decision:
 # - plyranges read_* functions return GRanges
 # - dbSequence read_* functions return dbSequence (lazy, DuckDB-backed)
-# - Users can chain %>% as_granges() to collect when needed
+# - Users can chain into as_granges() to collect when needed
 
 # ------------------------------------------------------------------------------
 #  as_granges S3 generic and method

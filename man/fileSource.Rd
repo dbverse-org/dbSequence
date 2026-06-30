@@ -3,12 +3,15 @@
 \name{fileSource}
 \alias{fileSource}
 \alias{fileSource,dbSequence-method}
+\alias{fileSource<-}
 \alias{fileSource<-,dbSequence-method}
 \title{Accessor for file_source slot}
 \usage{
 fileSource(object)
 
 \S4method{fileSource}{dbSequence}(object)
+
+fileSource(object) <- value
 
 \S4method{fileSource}{dbSequence}(object) <- value
 }
@@ -19,14 +22,22 @@ fileSource(object)
 }
 \value{
 The file_source value
+
+Always errors because file sources are immutable after creation.
 }
 \description{
-Accessor for file_source slot
+This method prevents modification of the file_source slot
+after object creation. The file_source is set during import and should
+not be changed to maintain data integrity.
 }
 \examples{
 bed <- system.file("extdata", "example.bed", package = "dbSequence")
 db_seq <- read_bed(bed)
 fileSource(db_seq)
+try(fileSource(db_seq) <- "other.bed")
+
+bed <- system.file("extdata", "example.bed", package = "dbSequence")
+db_seq <- read_bed(bed)
 try(fileSource(db_seq) <- "other.bed")
 
 }

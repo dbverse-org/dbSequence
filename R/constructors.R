@@ -89,7 +89,7 @@ dbSequence <- function(
 
   # Extract file path from DuckDBFile or use as character
   if (is(file_source, "DuckDBFile")) {
-    file_source_char <- file_source@path
+    file_source_char <- .duckdb_file_path(file_source)
   } else {
     file_source_char <- as.character(file_source)
   }

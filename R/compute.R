@@ -31,7 +31,7 @@ compute.dbSequence <- function(
   ...
 ) {
   computed_tbl <- dplyr::compute(
-    x@value,
+    .dbseq_value(x),
     name = name,
     temporary = temporary,
     overwrite = overwrite,
@@ -42,6 +42,6 @@ compute.dbSequence <- function(
     "dbSequence",
     value = computed_tbl,
     name = name,
-    file_source = x@file_source
+    file_source = fileSource(x)
   )
 }

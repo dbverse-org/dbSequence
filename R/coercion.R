@@ -49,12 +49,12 @@ if (requireNamespace("GenomicRanges", quietly = TRUE)) {
       )
     }
 
-    if (is.null(from@value)) {
+    if (is.null(.dbseq_value(from))) {
       stop("dbSequence object has no data (table/query may not exist)")
     }
 
     df <- tryCatch(
-      dplyr::collect(from@value),
+      dplyr::collect(.dbseq_value(from)),
       error = function(e) {
         cli::cli_abort(c(
           "Failed to collect data from dbSequence.",
@@ -316,12 +316,12 @@ setMethod("asRanges", "dbSequence", function(x, ...) {
   )
 
   # Execute the query
-  result <- .safe_query(x@file_source, create_view_query)
+  result <- .safe_query(fileSource(x), create_view_query)
 
   if (is.null(result)) {
     stop("Failed to create ranges view for table: ", original_table)
   }
 
   # Return new dbSequence object pointing to the ranges view
-  dbSequence(ranges_view_name, x@file_source)
+  dbSequence(ranges_view_name, fileSource(x))
 })

@@ -171,15 +171,15 @@ test_that("in-memory database import works correctly", {
   # Test that result is a proper dbSequence object
   expect_s4_class(result_memory, "dbSequence")
   expect_equal(tableName(result_memory), "test_memory")
-  expect_equal(result_memory@file_source, ":memory:")
-  expect_false(is.null(result_memory@value))
+  expect_equal(fileSource(result_memory), ":memory:")
+  expect_false(is.null(dbSequence:::.dbseq_value(result_memory)))
 
   # Test that the tbl object exists and is accessible
-  expect_false(is.null(result_memory@value))
-  expect_s3_class(result_memory@value, "tbl")
+  expect_false(is.null(dbSequence:::.dbseq_value(result_memory)))
+  expect_s3_class(dbSequence:::.dbseq_value(result_memory), "tbl")
 
   # Test that we can query the data
-  data_retrieved <- result_memory@value %>% dplyr::collect()
+  data_retrieved <- dbSequence:::.dbseq_value(result_memory) |> dplyr::collect()
   expect_gt(nrow(data_retrieved), 0)
 })
 
@@ -204,18 +204,18 @@ test_that("file database import works correctly", {
   # Test that result is a proper dbSequence object
   expect_s4_class(result_file, "dbSequence")
   expect_equal(tableName(result_file), "test_file")
-  expect_equal(result_file@file_source, temp_db)
-  expect_false(is.null(result_file@value))
+  expect_equal(fileSource(result_file), temp_db)
+  expect_false(is.null(dbSequence:::.dbseq_value(result_file)))
 
   # Test that the file was created
   expect_true(file.exists(temp_db))
 
   # Test that the tbl object exists and is accessible
-  expect_false(is.null(result_file@value))
-  expect_s3_class(result_file@value, "tbl")
+  expect_false(is.null(dbSequence:::.dbseq_value(result_file)))
+  expect_s3_class(dbSequence:::.dbseq_value(result_file), "tbl")
 
   # Test that we can query the data
-  data_retrieved <- result_file@value %>% dplyr::collect()
+  data_retrieved <- dbSequence:::.dbseq_value(result_file) |> dplyr::collect()
   expect_gt(nrow(data_retrieved), 0)
 })
 
@@ -247,8 +247,8 @@ test_that("connection handling is correct for in-memory vs file databases", {
   expect_equal(tableName(result2), "table2")
 
   # Both should have accessible data (each in its own in-memory database)
-  expect_gt(nrow(dplyr::collect(result1@value)), 0)
-  expect_gt(nrow(dplyr::collect(result2@value)), 0)
+  expect_gt(nrow(dplyr::collect(dbSequence:::.dbseq_value(result1))), 0)
+  expect_gt(nrow(dplyr::collect(dbSequence:::.dbseq_value(result2))), 0)
 
   # Test that file connections work independently
   temp_db1 <- tempfile(fileext = ".duckdb")
@@ -279,9 +279,9 @@ test_that("connection handling is correct for in-memory vs file databases", {
   expect_s4_class(result4, "dbSequence")
   expect_equal(tableName(result3), "table1")
   expect_equal(tableName(result4), "table1")
-  expect_false(result3@file_source == result4@file_source)
+  expect_false(fileSource(result3) == fileSource(result4))
 
   # Both should have accessible data
-  expect_gt(nrow(dplyr::collect(result3@value)), 0)
-  expect_gt(nrow(dplyr::collect(result4@value)), 0)
+  expect_gt(nrow(dplyr::collect(dbSequence:::.dbseq_value(result3))), 0)
+  expect_gt(nrow(dplyr::collect(dbSequence:::.dbseq_value(result4))), 0)
 })

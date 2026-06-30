@@ -63,7 +63,7 @@ test_that("read_bed returns dbSequence object", {
   db_seq <- read_bed(bed_file)
 
   expect_s4_class(db_seq, "dbSequence")
-  expect_true(inherits(db_seq@value, "tbl_lazy"))
+  expect_true(inherits(dbSequence:::.dbseq_value(db_seq), "tbl_lazy"))
 })
 
 test_that("read_bed is lazy by default and can be materialized", {
@@ -82,19 +82,19 @@ test_that("read_bed is lazy by default and can be materialized", {
   )
 
   expect_s4_class(db_seq, "dbSequence")
-  expect_true(inherits(db_seq@value, "tbl_lazy"))
+  expect_true(inherits(dbSequence:::.dbseq_value(db_seq), "tbl_lazy"))
 
   # Lazy scan should not create a physical table by default
-  con <- dbplyr::remote_con(db_seq@value)
+  con <- dbplyr::remote_con(dbSequence:::.dbseq_value(db_seq))
   expect_false(DBI::dbExistsTable(con, "bed_data"))
 
-  collected <- dplyr::collect(db_seq@value)
+  collected <- dplyr::collect(dbSequence:::.dbseq_value(db_seq))
   expect_true(all(c("seqnames", "start", "end") %in% colnames(collected)))
   expect_gt(nrow(collected), 0)
 
   # Materialize explicitly
   db_seq2 <- dplyr::compute(db_seq, name = "bed_data", temporary = FALSE)
-  con2 <- dbplyr::remote_con(db_seq2@value)
+  con2 <- dbplyr::remote_con(dbSequence:::.dbseq_value(db_seq2))
   expect_true(DBI::dbExistsTable(con2, "bed_data"))
 })
 
@@ -124,16 +124,16 @@ test_that("read_vcf is lazy by default and can be materialized", {
   )
 
   expect_s4_class(db_seq, "dbSequence")
-  expect_true(inherits(db_seq@value, "tbl_lazy"))
+  expect_true(inherits(dbSequence:::.dbseq_value(db_seq), "tbl_lazy"))
 
-  con <- dbplyr::remote_con(db_seq@value)
+  con <- dbplyr::remote_con(dbSequence:::.dbseq_value(db_seq))
   expect_false(DBI::dbExistsTable(con, "vcf_data"))
 
-  df <- dplyr::collect(db_seq@value)
+  df <- dplyr::collect(dbSequence:::.dbseq_value(db_seq))
   expect_true(all(c("seqnames", "start") %in% colnames(df)))
   expect_gt(nrow(df), 0)
 
   db_seq2 <- dplyr::compute(db_seq, name = "vcf_data", temporary = FALSE)
-  con2 <- dbplyr::remote_con(db_seq2@value)
+  con2 <- dbplyr::remote_con(dbSequence:::.dbseq_value(db_seq2))
   expect_true(DBI::dbExistsTable(con2, "vcf_data"))
 })

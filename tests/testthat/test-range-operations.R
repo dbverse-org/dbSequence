@@ -34,7 +34,7 @@ test_that("filter_by_overlaps returns correct overlapping ranges", {
   region <- GenomicRanges::GRanges("chr1:1400-1600")
   filtered <- filter_by_overlaps(db_seq, region)
 
-  result <- dplyr::collect(filtered@value)
+  result <- dplyr::collect(dbSequence:::.dbseq_value(filtered))
   expect_equal(nrow(result), 1)
   expect_equal(result$start, 1500)
   expect_equal(result$end, 1700)
@@ -48,7 +48,7 @@ test_that("filter_by_overlaps handles empty results", {
   region <- GenomicRanges::GRanges("chr3:1-1000")
   filtered <- filter_by_overlaps(db_seq, region)
 
-  result <- dplyr::collect(filtered@value)
+  result <- dplyr::collect(dbSequence:::.dbseq_value(filtered))
   expect_equal(nrow(result), 0)
 })
 
@@ -60,7 +60,7 @@ test_that("filter_by_overlaps handles multiple overlaps", {
   region <- GenomicRanges::GRanges("chr1:1000-2200")
   filtered <- filter_by_overlaps(db_seq, region)
 
-  result <- dplyr::collect(filtered@value)
+  result <- dplyr::collect(dbSequence:::.dbseq_value(filtered))
   expect_equal(nrow(result), 3)
 })
 
@@ -71,7 +71,7 @@ test_that("filter_by_overlaps result is lazy (not collected)", {
   region <- GenomicRanges::GRanges("chr1:1400-1600")
   filtered <- filter_by_overlaps(db_seq, region)
 
-  expect_true(inherits(filtered@value, "tbl_lazy"))
+  expect_true(inherits(dbSequence:::.dbseq_value(filtered), "tbl_lazy"))
   expect_s4_class(filtered, "dbSequence")
 })
 
