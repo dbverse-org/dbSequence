@@ -1,5 +1,6 @@
 .Rproj.user
 .Rhistory
+*.Rproj
 :temp:
 inst/doc
 *.db
@@ -9,3 +10,6 @@ docs/
 scratch/
 *.code-workspace
 benchmarks/
+/vignettes/*.html
+/vignettes/*.R
+/vignettes/.quarto/

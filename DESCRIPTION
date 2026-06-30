@@ -1,23 +1,30 @@
 Package: dbSequence
 Title: DuckDB-Backed Interface for Large-Scale Genomic Data
-Version: 0.99.0
+Version: 0.99.1
 Authors@R: 
-    person("Edward", "C. Ruiz", , "ecr7407@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-9174-5387"))
+    c(
+        person("Edward C.", "Ruiz", , "ecr7407@gmail.com", role = c("aut", "cre"),
+               comment = c(ORCID = "0000-0002-9174-5387")),
+        person("Ruben", "Dries", role = "rev"),
+        person("National Human Genome Research Institute", role = "fnd",
+               comment = c(grant = "1R01HG014487-01"))
+    )
 Description: Provides a DuckDB-backed infrastructure for working with 
     large-scale genomic data that exceeds available memory. Supports 
     lazy evaluation of genomic ranges and efficient overlap queries.
     Integrates with Bioconductor classes 
     (GRanges, BiocIO) and provides plyranges-compatible API.
 License: MIT + file LICENSE
-URL: https://github.com/dbverse-org/dbsequence-r
-BugReports: https://github.com/dbverse-org/dbsequence-r/issues
-biocViews: Infrastructure, DataImport, Sequencing, Coverage, DataRepresentation
+URL: https://github.com/dbverse-org/dbSequence
+BugReports: https://github.com/dbverse-org/dbSequence/issues
+biocViews: Software, Infrastructure, DataImport, Sequencing, Coverage, DataRepresentation
+BiocType: Software
+LazyData: false
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Depends:
-    R (>= 4.5.0)
+    R (>= 4.6.0)
 Imports:
     methods,
     duckdb,
@@ -42,6 +49,7 @@ Suggests:
     scater,
     knitr,
     rmarkdown,
+    BiocStyle,
     plyranges,
     microbenchmark
 Config/testthat/edition: 3
